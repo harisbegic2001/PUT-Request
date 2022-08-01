@@ -7,6 +7,7 @@ using API.Data;
 using API.DTO;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace API.Controllers
@@ -25,7 +26,7 @@ namespace API.Controllers
     [HttpGet]
     public ActionResult<IEnumerable<User>> GetAllUsers()
     {
-        return _context.Users.ToList();
+        return _context.Users.Include(x => x.EmergencyContacts ).ToList();
     }
 
 
@@ -49,7 +50,7 @@ namespace API.Controllers
 
 
 
-    [HttpPut("{id}")]
+    [HttpPut("edit-user/{id}")]
     public ActionResult<User> UpdateUser(User updateUser, int id)
     {
         var postojeciUser = _context.Users.FirstOrDefault(x=> x.ID== id);
@@ -57,12 +58,11 @@ namespace API.Controllers
         postojeciUser.Name = updateUser.Name;
         postojeciUser.LastName = updateUser.LastName;
         postojeciUser.Email = updateUser.Email;
-        /*
-        postojeciUser.EmergencyContacts[0].Name = updateUser.EmergencyContacts[0].Name;
-        postojeciUser.EmergencyContacts[1].Name = updateUser.EmergencyContacts[1].Name;
-        postojeciUser.EmergencyContacts[0].PhoneNumber = updateUser.EmergencyContacts[0].PhoneNumber;
-        postojeciUser.EmergencyContacts[1].PhoneNumber = updateUser.EmergencyContacts[1].PhoneNumber;
-        */
+        // postojeciUser.EmergencyContacts[0].Name = updateUser.EmergencyContacts[0].Name;
+        // postojeciUser.EmergencyContacts[1].Name = updateUser.EmergencyContacts[1].Name;
+        // postojeciUser.EmergencyContacts[0].PhoneNumber = updateUser.EmergencyContacts[0].PhoneNumber;
+        // postojeciUser.EmergencyContacts[1].PhoneNumber = updateUser.EmergencyContacts[1].PhoneNumber;
+        //postojeciUser.EmergencyContacts = updateUser.EmergencyContacts;
         _context.SaveChanges();
 
         
@@ -108,6 +108,48 @@ namespace API.Controllers
     }
 
 
+    // [HttpPut("{id}")]
+    // public ActionResult<User> ChangeName(int id, UpdateUserDTO updateUserDTO)
+    // {
+    //     var user = _context.Users.FirstOrDefault(x=> x.ID == id);
+
+    //     user.Name = updateUserDTO.Name;
+    //     user.LastName = updateUserDTO.LastName;
+    //     user.Email = updateUserDTO.Email;
+
+    //     _context.SaveChanges();
+
+    //     return Ok(user);
+
+    // }
+
+        [HttpPut("{id}")]
+        public ActionResult<User> EditContact(int id, UpdateContactDTO updateContactDTO)
+        {
+            var user = _context.Users.FirstOrDefault(x=> x.ID == id);
+
+            // var no = user.EmergencyContacts.Count();
+
+            // for (int i = 0; i < no; i++)
+            // {
+            //     user.EmergencyContacts[i].Name = updateContactDTO.Name;
+            //     user.EmergencyContacts[i].PhoneNumber = updateContactDTO.PhoneNumber;
+                
+            // }
+
+
+            var contact = _context.EmergencyContacts.FirstOrDefault(x=> x.UserID == id);
+
+
+            contact.Name = updateContactDTO.Name;
+            contact.PhoneNumber = updateContactDTO.PhoneNumber;
+
+
+            _context.SaveChanges();
+
+            return Ok();
+
+        }
 
 
     /*Updateanje korisnikovih Emergency Kontakata*/
